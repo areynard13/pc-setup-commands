@@ -22,6 +22,11 @@ $("groups").innerHTML = SECTIONS.map((s) => `
   </section>`).join("");
 
 // ---- logic ----
+const HINTS: Partial<Record<Shell, string>> = {
+  ps: "If PowerShell refuses to load your profile, run: Set-ExecutionPolicy -Scope CurrentUser RemoteSigned",
+  fish: "Paste these lines directly in fish. Make sure bash is installed (it is on Arch).",
+};
+
 function update() {
   const shell = $<HTMLSelectElement>("shell").value as Shell;
   const fields: Record<string, string> = {};
@@ -36,7 +41,10 @@ function update() {
     );
 
   $("out").textContent = generate(shell, fields, selection);
-  $("hint").hidden = shell !== "ps";
+
+  const hint = HINTS[shell];
+  $("hint").textContent = hint ?? "";
+  $("hint").hidden = !hint;
 }
 
 // ---- events ----

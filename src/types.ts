@@ -1,4 +1,4 @@
-export type Shell = "bash" | "zsh" | "ps";
+export type Shell = "bash" | "zsh" | "fish" | "ps";
 export type Fields = Record<string, string>;
 
 export interface Item {
@@ -9,7 +9,7 @@ export interface Item {
   defaultOn?: boolean;     // false = unchecked by default (default: true)
   psConflict?: boolean;    // PowerShell built-in alias to remove first
   cmd?: (shell: Shell, fields: Fields) => string[];  // standalone commands
-  rc?: (shell: Shell) => string[];                   // lines appended to .bashrc / .zshrc / $PROFILE
+  rc?: (shell: Shell) => string[];                   // lines appended to the shell config file
 }
 
 export interface Section {

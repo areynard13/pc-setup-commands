@@ -15,6 +15,7 @@
       <select id="shell">
         <option value="bash">Bash (Linux / Git Bash)</option>
         <option value="zsh">Zsh (macOS / Linux)</option>
+        <option value="fish">Fish (CachyOS / Arch)</option>
         <option value="ps">PowerShell (Windows)</option>
       </select>
     </section>
@@ -26,10 +27,7 @@
       <span id="msg"></span>
     </div>
     <pre id="out"></pre>
-    <p id="hint" hidden>
-      If PowerShell refuses to load your profile, run:
-      <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code>
-    </p>
+    <p id="hint" hidden></p>
   </main>
   <script type="module" src="/src/main.ts"></script>
 </body>

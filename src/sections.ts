@@ -1,6 +1,10 @@
 import type { Item, Section, Shell, Fields } from "./types";
 
-const RC: Record<string, string> = { bash: "~/.bashrc", zsh: "~/.zshrc" };
+const RC: Record<string, string> = {
+  bash: "~/.bashrc",
+  zsh: "~/.zshrc",
+  fish: "~/.config/fish/config.fish",
+};
 
 const ACP = String.raw`acp = "!f() { git add . && git status && printf '\\n\\nCommit and push ? (Y/n) : ' && read ans && if [ \"$ans\" = Y ] || [ \"$ans\" = y ] || [ -z \"$ans\" ]; then git commit -m \"$*\" && git push; else echo Aborted.; fi; }; f"`;
 
@@ -20,19 +24,25 @@ const shellAlias = (id: string, git: string, extra: Partial<Item> = {}): Item =>
           ...(extra.psConflict ? [`Remove-Item Alias:${id} -Force -ErrorAction SilentlyContinue`] : []),
           `function ${id} { git ${git} @args }`,
         ]
-      : [`alias ${id}='git ${git}'`],
+      : shell === "fish"
+        ? [`alias ${id} 'git ${git}'`]
+        : [`alias ${id}='git ${git}'`],
 });
 
-/** Package installed through brew (macOS), apt (Linux) or winget (Windows). */
+/** Package installed through pacman (Arch), brew (macOS), apt (Debian/Ubuntu) or winget (Windows). */
 const pkg = (
   id: string, label: string, desc: string,
-  p: { brew: string; apt: string; winget: string },
+  p: { pacman: string; brew: string; apt: string; winget: string },
 ): Item => ({
   id, label, desc, defaultOn: false,
   cmd: (shell) =>
     shell === "ps"
       ? [`winget install --id ${p.winget} -e`]
-      : [`if command -v brew >/dev/null 2>&1; then brew install ${p.brew}; else sudo apt install -y ${p.apt}; fi`],
+      : [
+          `if command -v pacman >/dev/null 2>&1; then sudo pacman -S --needed --noconfirm ${p.pacman};`,
+          `elif command -v brew >/dev/null 2>&1; then brew install ${p.brew};`,
+          `else sudo apt install -y ${p.apt}; fi`,
+        ],
 });
 
 /** Installer that differs between Unix shells and PowerShell. */
@@ -47,7 +57,7 @@ const installer = (
 const standardBuild = (items: Item[], shell: Shell, f: Fields) =>
   items.flatMap((i) => i.cmd!(shell, f));
 
-/** Appends the items' `rc` lines to .bashrc / .zshrc / PowerShell profile. */
+/** Appends the items' `rc` lines to the shell config file (.bashrc / .zshrc / config.fish / $PROFILE). */
 const rcBuild = (items: Item[], shell: Shell) => {
   const body = items.flatMap((i) => i.rc!(shell));
   if (shell === "ps") {
@@ -57,6 +67,10 @@ const rcBuild = (items: Item[], shell: Shell) => {
     ];
   }
   const rc = RC[shell];
+  if (shell === "fish") {
+    // Runs inside bash (see generate.ts); fish reloads the file at the end.
+    return ["mkdir -p ~/.config/fish", `cat >> ${rc} <<'EOF'`, "", ...body, "EOF"];
+  }
   return [`cat >> ${rc} <<'EOF'`, "", ...body, "EOF", `source ${rc}`];
 };
 
@@ -89,19 +103,21 @@ export const SECTIONS: Section[] = [
         ["winget install --id Rustlang.Rustup -e"]),
       installer("docker", "docker", "Docker (Desktop on macOS / Windows)",
         [
-          'if [ "$(uname)" = "Darwin" ]; then brew install --cask docker; else curl -fsSL https://get.docker.com | sh && sudo usermod -aG docker "$USER"; fi',
+          'if [ "$(uname)" = "Darwin" ]; then brew install --cask docker;',
+          'elif command -v pacman >/dev/null 2>&1; then sudo pacman -S --needed --noconfirm docker docker-compose && sudo systemctl enable --now docker && sudo usermod -aG docker "$USER";',
+          'else curl -fsSL https://get.docker.com | sh && sudo usermod -aG docker "$USER"; fi',
         ],
         ["winget install --id Docker.DockerDesktop -e"]),
       pkg("git", "git", "Git itself",
-        { brew: "git", apt: "git", winget: "Git.Git" }),
+        { pacman: "git", brew: "git", apt: "git", winget: "Git.Git" }),
       pkg("gh", "gh", "GitHub CLI",
-        { brew: "gh", apt: "gh", winget: "GitHub.cli" }),
+        { pacman: "github-cli", brew: "gh", apt: "gh", winget: "GitHub.cli" }),
       pkg("go", "go", "Go language",
-        { brew: "go", apt: "golang-go", winget: "GoLang.Go" }),
+        { pacman: "go", brew: "go", apt: "golang-go", winget: "GoLang.Go" }),
       pkg("jq", "jq", "JSON processor",
-        { brew: "jq", apt: "jq", winget: "jqlang.jq" }),
+        { pacman: "jq", brew: "jq", apt: "jq", winget: "jqlang.jq" }),
       pkg("rg", "ripgrep", "Very fast code search (rg)",
-        { brew: "ripgrep", apt: "ripgrep", winget: "BurntSushi.ripgrep.MSVC" }),
+        { pacman: "ripgrep", brew: "ripgrep", apt: "ripgrep", winget: "BurntSushi.ripgrep.MSVC" }),
     ],
   },
 
@@ -216,28 +232,36 @@ export const SECTIONS: Section[] = [
         id: "ll", label: "ll", desc: "Detailed file listing",
         rc: (shell) => shell === "ps"
           ? ["function ll { Get-ChildItem -Force @args }"]
-          : ["alias ll='ls -lah'"],
+          : shell === "fish"
+            ? ["alias ll 'ls -lah'"]
+            : ["alias ll='ls -lah'"],
       },
       {
         id: "up", label: ".. and ...", desc: "Go up one / two folders",
         rc: (shell) => shell === "ps"
           ? ["function .. { Set-Location .. }", "function ... { Set-Location ..\\.. }"]
-          : ["alias ..='cd ..'", "alias ...='cd ../..'"],
+          : shell === "fish"
+            ? ["abbr -a .. 'cd ..'", "abbr -a ... 'cd ../..'"]
+            : ["alias ..='cd ..'", "alias ...='cd ../..'"],
       },
       {
         id: "mkcd", label: "mkcd", desc: "Create a folder and enter it",
         rc: (shell) => shell === "ps"
           ? ["function mkcd { param($d) New-Item -ItemType Directory -Force $d | Out-Null; Set-Location $d }"]
-          : ['mkcd() { mkdir -p "$1" && cd "$1"; }'],
+          : shell === "fish"
+            ? ["function mkcd", "    mkdir -p $argv[1]; and cd $argv[1]", "end"]
+            : ['mkcd() { mkdir -p "$1" && cd "$1"; }'],
       },
       {
         id: "history", label: "Better history", desc: "Bigger, shared history",
         rc: (shell) =>
           shell === "ps"
             ? ["Set-PSReadLineOption -PredictionSource History"]
-            : shell === "zsh"
-              ? ["HISTSIZE=10000", "SAVEHIST=10000", "setopt SHARE_HISTORY"]
-              : ["export HISTSIZE=10000", "export HISTFILESIZE=20000", "shopt -s histappend"],
+            : shell === "fish"
+              ? ["# fish already keeps a large, shared history"]
+              : shell === "zsh"
+                ? ["HISTSIZE=10000", "SAVEHIST=10000", "setopt SHARE_HISTORY"]
+                : ["export HISTSIZE=10000", "export HISTFILESIZE=20000", "shopt -s histappend"],
       },
     ],
   },
