@@ -1,13 +1,36 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pc-setup-commands</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PC Setup Generator</title>
+</head>
+<body>
+  <main>
+    <h1>PC Setup Generator</h1>
+    <p class="sub">Pick your terminal, tick what you want, then copy and paste the script.</p>
+
+    <section class="card">
+      <label for="shell"><strong>Terminal</strong></label>
+      <select id="shell">
+        <option value="bash">Bash (Linux / Git Bash)</option>
+        <option value="zsh">Zsh (macOS / Linux)</option>
+        <option value="ps">PowerShell (Windows)</option>
+      </select>
+    </section>
+
+    <div id="groups"></div>
+
+    <div class="bar">
+      <button id="copy">Copy script</button>
+      <span id="msg"></span>
+    </div>
+    <pre id="out"></pre>
+    <p id="hint" hidden>
+      If PowerShell refuses to load your profile, run:
+      <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code>
+    </p>
+  </main>
+  <script type="module" src="/src/main.ts"></script>
+</body>
 </html>
