@@ -6,9 +6,10 @@ export interface Item {
   label: string;
   desc?: string;
   needs?: string;          // "sectionId:itemId"
-  git?: string;            // for shell aliases
+  defaultOn?: boolean;     // false = unchecked by default (default: true)
   psConflict?: boolean;    // PowerShell built-in alias to remove first
-  cmd?: (shell: Shell, fields: Fields) => string[];
+  cmd?: (shell: Shell, fields: Fields) => string[];  // standalone commands
+  rc?: (shell: Shell) => string[];                   // lines appended to .bashrc / .zshrc / $PROFILE
 }
 
 export interface Section {

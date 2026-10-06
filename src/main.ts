@@ -16,7 +16,7 @@ $("groups").innerHTML = SECTIONS.map((s) => `
       .map((f) => `<input type="text" id="f-${f.id}" placeholder="${f.placeholder}">`).join("")}</div>` : ""}
     <div class="items">${s.items.map((i) => `
       <label class="item">
-        <input type="checkbox" id="c-${s.id}-${i.id}" checked>
+        <input type="checkbox" id="c-${s.id}-${i.id}" ${i.defaultOn === false ? "" : "checked"}>
         <span><code>${i.label}</code><small>${i.desc ?? ""}</small></span>
       </label>`).join("")}</div>
   </section>`).join("");
