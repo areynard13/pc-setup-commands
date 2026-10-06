@@ -1,50 +1,277 @@
+/* ==========================================================================
+   Design tokens
+   ========================================================================== */
 :root {
-  --bg: #ffffff;
-  --fg: #1f2328;
-  --muted: #656d76;
-  --border: #d0d7de;
-  --accent: #0969da;
-  --code-bg: #f6f8fa;
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --fg: #1b1f2a;
+  --muted: #6b7385;
+  --border: #e3e7ef;
+
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-soft: #eef0ff;
+
+  --terminal-bg: #0f172a;
+  --terminal-fg: #d1fae5;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 16px rgba(16, 24, 40, 0.06);
 }
-* { box-sizing: border-box; }
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+* {
+  box-sizing: border-box;
+}
+
 body {
-  margin: 0; padding: 32px 16px;
-  background: var(--bg); color: var(--fg);
-  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  margin: 0;
+  padding: 48px 16px 64px;
+  background: var(--bg);
+  color: var(--fg);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
-main { max-width: 760px; margin: 0 auto; }
-h1 { margin: 0 0 4px; font-size: 1.6rem; }
-.sub { margin: 0 0 24px; color: var(--muted); }
 
-.card { border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-.head { display: flex; justify-content: space-between; margin-bottom: 12px; }
-.head a { color: var(--accent); text-decoration: none; font-size: 14px; }
-
-.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-.items { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
-.item { display: flex; gap: 8px; padding: 8px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; }
-.item small { display: block; color: var(--muted); font-size: 12px; }
-
-input[type="text"], select {
-  width: 100%; padding: 8px; font: inherit;
-  border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--fg);
+main {
+  max-width: 780px;
+  margin: 0 auto;
 }
-select { margin-top: 8px; }
-input[type="checkbox"] { margin-top: 4px; accent-color: var(--accent); }
+
+h1 {
+  margin: 0 0 6px;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.sub {
+  margin: 0 0 32px;
+  color: var(--muted);
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+/* ==========================================================================
+   Cards
+   ========================================================================== */
+.card {
+  margin-bottom: 20px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.head strong {
+  font-size: 1.05rem;
+}
+
+.head span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.head a {
+  padding: 2px 8px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.head a:hover {
+  background: var(--accent-soft);
+}
+
+/* ==========================================================================
+   Form fields
+   ========================================================================== */
+.fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+input[type="text"],
+select {
+  width: 100%;
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+input[type="text"]::placeholder {
+  color: #a0a7b8;
+}
+
+input[type="text"]:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+select {
+  margin-top: 8px;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Items (checkboxes)
+   ========================================================================== */
+.items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+
+.item:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+/* Highlight when checked */
+.item:has(input:checked) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.item code {
+  font-weight: 600;
+}
+
+.item small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin-top: 4px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Action bar
+   ========================================================================== */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0 12px;
+}
 
 button {
-  padding: 8px 16px; font: inherit; font-weight: 600; cursor: pointer;
-  background: var(--accent); color: #fff; border: 0; border-radius: 6px;
+  padding: 10px 20px;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(79, 70, 229, 0.3);
+  transition: background 0.15s, transform 0.1s;
 }
-.bar { display: flex; align-items: center; gap: 12px; margin: 16px 0; }
-#msg { color: var(--accent); font-size: 14px; }
 
+button:hover {
+  background: var(--accent-hover);
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+button:focus-visible {
+  outline: 3px solid var(--accent-soft);
+  outline-offset: 2px;
+}
+
+#msg {
+  color: #16a34a;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   Output (terminal look)
+   ========================================================================== */
 pre {
-  margin: 0; padding: 16px; overflow-x: auto;
-  background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px;
+  margin: 0;
+  padding: 20px;
+  overflow-x: auto;
+  color: var(--terminal-fg);
+  background: var(--terminal-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+#hint {
+  margin-top: 12px;
+  color: var(--muted);
   font-size: 13px;
 }
-code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-#hint { color: var(--muted); font-size: 13px; }
 
-@media (max-width: 520px) { .fields { grid-template-columns: 1fr; } }
+#hint code {
+  padding: 2px 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width: 520px) {
+  body {
+    padding: 24px 12px 48px;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+  }
+
+  .fields {
+    grid-template-columns: 1fr;
+  }
+}
