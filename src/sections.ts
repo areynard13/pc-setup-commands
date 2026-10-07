@@ -217,9 +217,11 @@ export const SECTIONS: Section[] = [
       shellAlias("gaa", "add *"),
       shellAlias("gacp", "acp", { needs: "gitalias:acp" }),
       shellAlias("gb", "branch"),
+      shellAlias("gsc", "switch -c"),
       shellAlias("gl", "log", { psConflict: true }),
       shellAlias("gp", "push", { psConflict: true }),
       shellAlias("gpl", "pull"),
+      shellAlias("gs", "status"),
     ],
   },
 
