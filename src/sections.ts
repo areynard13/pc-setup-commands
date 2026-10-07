@@ -220,6 +220,7 @@ export const SECTIONS: Section[] = [
       shellAlias("gl", "log", { psConflict: true }),
       shellAlias("gp", "push", { psConflict: true }),
       shellAlias("gpl", "pull"),
+      shellAlias("gs", "status"),
     ],
   },
 
